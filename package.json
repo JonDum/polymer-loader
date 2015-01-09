@@ -1,0 +1,35 @@
+
+{
+  "name": "polymer-loader",
+  "version": "0.1.0",
+  "description": "Webpack loader to automatically require any resources related to the required one",
+  "keywords": [
+    "webpack",
+    "loader"
+  ],
+  "homepage": "https://github.com/jondum/polymer-loader",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jondum/polymer-loader.git"
+  },
+  "author": {
+    "name": "Jonathan Dumaine",
+    "email": "jonathan.dumaine@dumstruck.com",
+    "url": "https://github.com/jondum"
+  },
+  "main": "index.js",
+  "peerDependencies": {
+    "webpack": "^1.4.3",
+    "loader-utils": "^0.2.4",
+    "source-map": "^0.1.39",
+    "baggage-loader": "^0.2.1"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "WTFPL",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/jondum/polymer-loader/issues"
+  }
+}
