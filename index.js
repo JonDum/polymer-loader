@@ -34,7 +34,7 @@ module.exports = function(source, sourceMap) {
             "var template = require('./"+elementName+"."+templateExtension+"');",
             "var styles = require('./"+elementName+"."+styleExtension+"');",
             "var el = document.createElement('div');",
-            "el.innerHTML = template.replace(/(<template>)([^]+<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
+            "el.innerHTML = template.replace(/(<template>)([^]*<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
             "document.body.appendChild(el)",
         "})(document);"
     ].join('\n');
