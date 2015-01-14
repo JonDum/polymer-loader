@@ -19,25 +19,53 @@ module.exports = function(source, sourceMap) {
     // /foo/bar/file.js -> file
     var srcFilename = path.basename(srcFilepath, path.extname(srcFilepath));
     // /foo/bar/file.js -> /foo/bar
-    var srcDirpath = path.dirname(srcFilepath);
+    var srcDirpath  = path.dirname(srcFilepath);
     // /foo/bar -> bar
-    var srcDirname = srcDirpath.split(path.sep).pop();
+    var srcDirname  = srcDirpath.split(path.sep).pop();
 
     var elementName = srcFilename == 'index' ? srcDirname : srcFilename;
 
     var templateExtension = query.templateExt || query.templateExtension || 'html';
-    var styleExtension = query.styleExt || query.styleExtension || 'css';
+    var styleExtension    = query.styleExt || query.styleExtension || 'css';
 
-    var inject = '\n/* inject from polymer-loader */\n';
-    inject += [
-        "(function(document) {",
-            "var template = require('./"+elementName+"."+templateExtension+"');",
-            "var styles = require('./"+elementName+"."+styleExtension+"');",
-            "var el = document.createElement('div');",
-            "el.innerHTML = template.replace(/(<template>)([^]*<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
-            "document.body.appendChild(el)",
-        "})(document);"
-    ].join('\n');
+    var htmlExists = fs.existsSync(path.join(srcDirpath, elementName+'.'+templateExtension));
+    var cssExists  = fs.existsSync(path.join(srcDirpath, elementName+'.'+styleExtension));
+
+    var inject = (htmlExists || cssExists) ? '\n/* inject from polymer-loader */\n' : '';
+
+    if(htmlExists & cssExists) {
+        inject += [
+            "(function(document) {",
+                "var template = require('./"+elementName+"."+templateExtension+"');",
+                "var styles = require('./"+elementName+"."+styleExtension+"');",
+                "var el = document.createElement('div');",
+                "el.innerHTML = template.replace(/(<template>)([^]*<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
+                "document.body.appendChild(el);",
+            "})(document);"
+        ].join('\n');
+    }
+    else
+    if(htmlExists && !cssExists) {
+        inject += [
+            "(function(document) {",
+                "var template = require('./"+elementName+"."+templateExtension+"');",
+                "var el = document.createElement('div');",
+                "el.innerHTML = template;",
+                "document.body.appendChild(el);",
+            "})(document);"
+        ].join('\n');
+    }
+    else
+    if(!htmlExists && cssExists) {
+        inject += [
+            "(function(document) {",
+                "var styles = require('./"+elementName+"."+styleExtension+"');",
+                "var el = document.createElement('div');",
+                "el.innerHTML = '<polymer-element name=\""+elementName+"\"><template><style>'+styles+'</style></template></polymer-element>';",
+                "document.body.appendChild(el);",
+            "})(document);"
+        ].join('\n');
+    }
 
     // support existing SourceMap
     // https://github.com/mozilla/source-map#sourcenode
