@@ -36,11 +36,16 @@ module.exports = function(source, sourceMap) {
     if(htmlExists & cssExists) {
         inject += [
             "(function(document) {",
-                "var template = require('./"+elementName+"."+templateExtension+"');",
-                "var styles = require('./"+elementName+"."+styleExtension+"');",
-                "var el = document.createElement('div');",
-                "el.innerHTML = template.replace(/(<template>)([^]*<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
-                "document.body.appendChild(el);",
+                "\tvar template = require('./"+elementName+"."+templateExtension+"');",
+                "\tvar styles = require('./"+elementName+"."+styleExtension+"');",
+                "\tvar el = document.createElement('div');",
+                "\tel.setAttribute('name', '"+elementName+"')",
+                "\tel.setAttribute('hidden','')",
+                "\tif(template.indexOf('<template>'))",
+                "\t\tel.innerHTML = template.replace(/(<template>)([^]*<\\/template>)/img, function(m, $1, $2) { return $1 + '<style>'+styles+'</style>' + $2});",
+                "\telse",
+                "\t\tel.innerHTML = template.replace('</polymer-element>', '<template><style>'+styles+'</style></template></polymer-element>');",
+                "\tdocument.body.appendChild(el);",
             "})(document);"
         ].join('\n');
     }
@@ -48,10 +53,12 @@ module.exports = function(source, sourceMap) {
     if(htmlExists && !cssExists) {
         inject += [
             "(function(document) {",
-                "var template = require('./"+elementName+"."+templateExtension+"');",
-                "var el = document.createElement('div');",
-                "el.innerHTML = template;",
-                "document.body.appendChild(el);",
+                "\tvar template = require('./"+elementName+"."+templateExtension+"');",
+                "\tvar el = document.createElement('div');",
+                "\tel.setAttribute('name', '"+elementName+"')",
+                "\tel.setAttribute('hidden','')",
+                "\tel.innerHTML = template;",
+                "\tdocument.body.appendChild(el);",
             "})(document);"
         ].join('\n');
     }
@@ -59,10 +66,12 @@ module.exports = function(source, sourceMap) {
     if(!htmlExists && cssExists) {
         inject += [
             "(function(document) {",
-                "var styles = require('./"+elementName+"."+styleExtension+"');",
-                "var el = document.createElement('div');",
-                "el.innerHTML = '<polymer-element name=\""+elementName+"\"><template><style>'+styles+'</style></template></polymer-element>';",
-                "document.body.appendChild(el);",
+                "\tvar styles = require('./"+elementName+"."+styleExtension+"');",
+                "\tvar el = document.createElement('div');",
+                "\tel.setAttribute('name', '"+elementName+"')",
+                "\tel.setAttribute('hidden','')",
+                "\tel.innerHTML = '<polymer-element name=\""+elementName+"\"><template><style>'+styles+'</style></template></polymer-element>';",
+                "\tdocument.body.appendChild(el);",
             "})(document);"
         ].join('\n');
     }
@@ -102,3 +111,4 @@ module.exports = function(source, sourceMap) {
     // return the original source
     return source;
 };
+
