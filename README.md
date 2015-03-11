@@ -9,18 +9,18 @@ I suggest putting your components in their own directory, say `/components`
 ```
 ▾ components/
     ▾ foo/
-        foo.html
-        foo.js
-        foo.styl
-    ▸ somethingElse/
-    ▾ types/
-      ▾ chart/
-          chart.html
-          chart.js
-          chart.styl
+        x-foo.html
+        x-foo.js
+        x-foo.styl
+    ▸ some-element/
+    ▾ charts/
+      ▾ bar-chart/
+          bar-chart.html
+          bar-chart.js
+          bar-chart.styl
 ```
 
-Where each component consists of the 3 parts of a webcomponent. Your `Polymer('foo', {})` registration would go in the .js file.
+Where each component consists of the 3 parts of a webcomponent. Your `Polymer('foo', {})` registration would go in the .js file, css would go in your css (or stylus/less/whathaveyou) file and your `<polymer-element name='...'>` goes in the .html file.
 
 Now you will need to add a `preLoaders` entry to your `module` section in your `webpack.config.js`
 
@@ -40,7 +40,7 @@ Change `templateExtension` & `styleExtension` to desired filetypes (don't forget
 
 Finally, whenever/wherever you want to `require()` this module in your bundle or chunk, just call `require('../components/foo/foo.js')` (remember it's relative to the file you require from).
 
-#### Goodies
+#### Goodies / Tips
 
 ** Extensionless, absolute require **
 
@@ -88,7 +88,41 @@ foo
   fooTheme()
 ```
 
-  
+***Registering Elements***
+
+It may be advisable to register the element to register each element outside of `require()` statement. For example, if you a common base element that many other elements extend, it must be registered before the child elements and subsequent `require()` calls to ensure that it has been registered and that Polymer will not throw errors because it already has been.
+
+my-component.html:
+```
+<polymer-element name='x-foo' extends='base-element'>
+...
+</polymer-element>
+```
+
+my-component.js:
+```
+var base = require('components/base-element');
+var mixin = require('mixins/somestuff.js');
+
+// ensureRegistered is a function you provide that calls Polymer(name, proto)
+ensureRegistered('base-element', base);
+
+var proto = {
+   ... 
+}
+
+module.exports = Polymer.mixin(proto, mixin);
+```
+
+main.js:
+```
+function init() {
+   // each component requires 'base-element' without duplication because it is a dependancy. 
+   Polymer('my-component', require('components/my-component'));
+   Polymer('my-component-other', require('components/my-component-other'));
+}
+```
+
 
 
 More to come
