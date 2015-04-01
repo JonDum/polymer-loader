@@ -42,9 +42,9 @@ Finally, whenever/wherever you want to `require()` this module in your bundle or
 
 #### Goodies / Tips
 
-** Extensionless, absolute require **
+**Extensionless, absolute require**
 
-Here's a little function that generates aliases for the files in your `/components` directory, allowing you to require components like `require('components/foo')` and `require('components/foo/type/bar')` from any file in your application (without having ot have every component's .js file named `index.js`).
+Here's a little function that generates aliases for the files in your `/components` directory, allowing you to require components like `require('components/foo')` and `require('components/foo/type/bar')` from any file in your application (without having to have every component's .js file named `index.js`).
 
 ```
         alias: (function() {
