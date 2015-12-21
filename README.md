@@ -20,7 +20,7 @@ I suggest putting your components in their own directory, say `/components`
           bar-chart.styl
 ```
 
-Where each component consists of the 3 parts of a web component. Your `Polymer('foo', {})` registration would go in the .js file, css would go in your css (or stylus/less/whathaveyou) file and your `<polymer-element name='...'>` goes in the .html file.
+Where each component consists of the 3 parts of a web component. Your `Polymer({is: 'x-foo'})` registration would go in the .js file, css would go in your css (or stylus/less/whathaveyou) file and your `<dom-module id='x-foo'>` goes in the .html file.
 
 Now you will need to add a `preLoaders` entry to your `module` section in your `webpack.config.js`
 
