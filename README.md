@@ -20,7 +20,7 @@ I suggest putting your components in their own directory, say `/components`
           bar-chart.styl
 ```
 
-Where each component consists of the 3 parts of a web component. Your `Polymer('foo', {})` registration would go in the .js file, css would go in your css (or stylus/less/whathaveyou) file and your `<polymer-element name='...'>` goes in the .html file.
+Where each component consists of the 3 parts of a web component. Your `Polymer({is: 'x-foo'})` registration would go in the .js file, css would go in your css (or stylus/less/whathaveyou) file and your `<dom-module id='x-foo'>` goes in the .html file.
 
 Now you will need to add a `preLoaders` entry to your `module` section in your `webpack.config.js`
 
@@ -87,42 +87,5 @@ foo
   $bar
   fooTheme()
 ```
-
-***Registering Elements***
-
-It may be advisable to register the element to register each element outside of `require()` statement. For example, if you have a common base element that many other elements extend, it must be registered before the child elements and subsequent `require()` calls to ensure that it has been registered and that Polymer will not throw errors because it already has been.
-
-my-component.html:
-```
-<polymer-element name='x-foo' extends='base-element'>
-...
-</polymer-element>
-```
-
-my-component.js:
-```
-var base = require('components/base-element');
-var mixin = require('mixins/somestuff.js');
-
-// ensureRegistered is a function you provide that calls Polymer(name, proto)
-ensureRegistered('base-element', base);
-
-var proto = {
-   ...
-}
-
-module.exports = Polymer.mixin(proto, mixin);
-```
-
-main.js:
-```
-function init() {
-   // each component requires 'base-element' without duplication because it is a dependancy.
-   Polymer('my-component', require('components/my-component'));
-   Polymer('my-component-other', require('components/my-component-other'));
-}
-```
-
-
 
 More to come...
