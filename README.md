@@ -5,7 +5,7 @@ Loads polymer-elements as first-class bundles. Allows you to separate components
 ## Installation
 
 ```
-npm install --save-dev ng-annotate-loader 
+npm install --save-dev polymer-loader
 ```
 
 ## Usage
