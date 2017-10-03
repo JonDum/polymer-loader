@@ -1,3 +1,9 @@
+# WARNING: NO LONGER MAINTAINED
+
+You probably want to use [webpack-contrib/polymer-webpack-loader](https://github.com/webpack-contrib/polymer-webpack-loader) instead.
+
+
+
 # polymer-loader
 
 Loads polymer-elements as first-class bundles. Allows you to separate components into a .js file, a .html file containing the `<polymer-element>` and a CSS file. Polymer-loader can be configured to use your choice of HTML/CSS preprocessor (Jade, EBS, Stylus, LESS, SASS, etc.).
