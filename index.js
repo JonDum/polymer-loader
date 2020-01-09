@@ -44,14 +44,21 @@ module.exports = function (source, sourceMap)
 		buffer.push("\tcomponentTemplate += require('./"+elementName+"."+templateExtension+"') + '\\n';");
 		
 	buffer	= buffer.concat([
-		"\tlet html = require(\"@polymer/polymer\").html;",
-		"\tlet Component 	= require('./"+elementName+".js');",
-		"\tif (\"default\" in Component)",
-		"\t\tComponent = Component.default;",
-		"\tObject.defineProperty(Component, \"template\", {value: html([componentTemplate])});",
-		"\tcustomElements.define(\"" + elementName + "\", Component);",
+		"\ttry",
+		"\t{",
+			"\t\tlet html = require(\"@polymer/polymer\").html;",
+			"\t\tlet Component 	= require('./"+elementName+".js');",
+			"\t\tif (\"default\" in Component)",
+			"\t\t\tComponent = Component.default;",
+			"\t\tObject.defineProperty(Component, \"template\", {value: html([componentTemplate])});",
+			"\t\tcustomElements.define(\"" + elementName + "\", Component);",
+		"\t}",
+		"\tcatch (error)",
+		"\t{",
+			"\t\tconsole.error(error);",
+		"\t}",
 		"})();"
-	])
+	]);
 	
 	let inject = buffer.join("\n");
 
