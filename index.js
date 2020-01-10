@@ -1,3 +1,4 @@
+
 'use strict';
 
 const path 			= require('path');
@@ -38,7 +39,7 @@ module.exports = function (source, sourceMap)
 	buffer.push(	"\tlet componentTemplate	= \"\";");
 	
 	if (cssExists)
-		buffer.push("\tcomponentTemplate += require('./"+elementName+"."+styleExtension+"') + '\\n';");
+		buffer.push("\tcomponentTemplate +='<style>' + require('./"+elementName+"."+styleExtension+"') + '</style>\\n';");
 		
 	if (htmlExists)
 		buffer.push("\tcomponentTemplate += require('./"+elementName+"."+templateExtension+"') + '\\n';");
@@ -50,8 +51,9 @@ module.exports = function (source, sourceMap)
 			"\t\tlet Component 	= require('./"+elementName+".js');",
 			"\t\tif (\"default\" in Component)",
 			"\t\t\tComponent = Component.default;",
-			"\t\tObject.defineProperty(Component, \"template\", {value: html([componentTemplate])});",
-			"\t\tcustomElements.define(\"" + elementName + "\", Component);",
+			"\t\tObject.defineProperty(Component, \"_template\", {value: html([componentTemplate]), writable: false, configurable: false});",
+			"\t\tObject.defineProperty(Component, \"template\", {get: function () { return this._template}, configurable: true, enumerable: false});",
+			"\t\tcustomElements.define(Component.is || \"" + elementName + "\", Component);",
 		"\t}",
 		"\tcatch (error)",
 		"\t{",
@@ -97,4 +99,3 @@ module.exports = function (source, sourceMap)
     // return the original source
     return source;
 };
-
