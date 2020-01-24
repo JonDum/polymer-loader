@@ -1,7 +1,7 @@
 
 {
   "name": "polymer-loader",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Webpack loader to automatically require any resources related to the required one",
   "keywords": [
     "webpack",
@@ -19,7 +19,8 @@
   },
   "main": "index.js",
   "peerDependencies": {
-    "webpack": "^1.4.3",
+	"@polymer/polymer": "^3.3.1",
+    "webpack": "^4.41.5",
     "loader-utils": "^0.2.4",
     "source-map": "^0.1.39",
     "baggage-loader": "^0.2.1"
