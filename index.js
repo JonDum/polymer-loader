@@ -48,7 +48,7 @@ module.exports = function (source, sourceMap)
 		"\ttry",
 		"\t{",
 			"\t\tlet html = require(\"@polymer/polymer\").html;",
-			"\t\tlet Component 	= require('./"+elementName+".js');",
+			"\t\tlet Component 	= require('./"+ path.basename(srcFilepath) +"');",
 			"\t\tif (\"default\" in Component)",
 			"\t\t\tComponent = Component.default;",
 			"\t\tObject.defineProperty(Component, \"_template\", {value: html([componentTemplate]), writable: false, configurable: false});",
