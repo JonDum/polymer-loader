@@ -36,8 +36,7 @@ module.exports = function(source, sourceMap) {
 		path.join(srcDirpath, elementName + '.' + styleExtension)
 	)
 
-	let buffer =
-		htmlExists || cssExists ? ['\n/* inject from polymer-loader */\n'] : ''
+	let buffer = htmlExists || cssExists ? ['\n/* inject from polymer-loader */\n'] : []
 
 	buffer.push('(function() {')
 	buffer.push('\tlet componentTemplate	= "";')
