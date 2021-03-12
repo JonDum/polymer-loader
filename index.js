@@ -7,10 +7,9 @@ const SourceMap = require('source-map')
 
 module.exports = function (source, sourceMap)
 {
-    let query = loaderUtils.parseQuery(this.query);
 	let query = loaderUtils.parseQuery(this.query)
 
-	if (this.cacheable) {
+	if (this.cacheable)
 		this.cacheable()
 
     // /foo/bar/file.js
@@ -37,50 +36,55 @@ module.exports = function (source, sourceMap)
 		path.join(srcDirpath, elementName + '.' + styleExtension)
 	)
 
-	let buffer = htmlExists || cssExists ? ['\n/* inject from polymer-loader */\n'] : []
+	let buffer = htmlExists || cssExists ? ['\n/* inject from polymer-loader */\n'] : null
 	
-	buffer.push('(function() {')
-	buffer.push('\tlet componentTemplate	= "";')
-	
-	if (cssExists)
-		buffer.push(
-			"\tcomponentTemplate +='<style>' + require('./" +
+	if (buffer != null)
+	{
+		buffer.push('(function() {')
+		buffer.push('\tlet componentTemplate	= "";')
+		
+		if (cssExists)
+			buffer.push(
+				"\tcomponentTemplate +='<style>' + require('./" +
+					elementName +
+					'.' +
+					styleExtension +
+					"') + '</style>\\n';"
+			)
+
+		if (htmlExists)
+			buffer.push(
+				"\tcomponentTemplate += require('./" +
+					elementName +
+					'.' +
+					templateExtension +
+					"') + '\\n';"
+			)
+
+		buffer = buffer.concat([
+			'\ttry',
+			'\t{',
+			'\t\tlet html = require("@polymer/polymer").html;',
+			"\t\tlet Component 	= require('./" + elementName + ".js');",
+			'\t\tif ("default" in Component)',
+			'\t\t\tComponent = Component.default;',
+			'\t\tObject.defineProperty(Component, "_template", {value: html([componentTemplate]), writable: false, configurable: false});',
+			'\t\tObject.defineProperty(Component, "template", {get: function () { return this._template}, configurable: true, enumerable: false});',
+			'\t\tcustomElements.define(Component.is || "' +
 				elementName +
-				'.' +
-				styleExtension +
-				"') + '</style>\\n';"
-		)
+				'", Component);',
+			'\t}',
+			'\tcatch (error)',
+			'\t{',
+			'\t\tconsole.error(error);',
+			'\t}',
+			'})();'
+		])
 
-	if (htmlExists)
-		buffer.push(
-			"\tcomponentTemplate += require('./" +
-				elementName +
-				'.' +
-				templateExtension +
-				"') + '\\n';"
-		)
+		let inject = buffer.join('\n')
 
-	buffer = buffer.concat([
-		'\ttry',
-		'\t{',
-		'\t\tlet html = require("@polymer/polymer").html;',
-		"\t\tlet Component 	= require('./" + elementName + ".js');",
-		'\t\tif ("default" in Component)',
-		'\t\t\tComponent = Component.default;',
-		'\t\tObject.defineProperty(Component, "_template", {value: html([componentTemplate]), writable: false, configurable: false});',
-		'\t\tObject.defineProperty(Component, "template", {get: function () { return this._template}, configurable: true, enumerable: false});',
-		'\t\tcustomElements.define(Component.is || "' +
-			elementName +
-			'", Component);',
-		'\t}',
-		'\tcatch (error)',
-		'\t{',
-		'\t\tconsole.error(error);',
-		'\t}',
-		'})();'
-	])
-
-	let inject = buffer.join('\n')
+		source += '\n' + inject
+	}
 
     // support existing SourceMap
     // https://github.com/mozilla/source-map#sourcenode
@@ -93,26 +97,16 @@ module.exports = function (source, sourceMap)
 		var sourceMapConsumer = new SourceMapConsumer(sourceMap)
 		var node = SourceNode.fromStringWithSourceMap(source, sourceMapConsumer)
 
-		node.prepend(inject)
+		//node.prepend(inject)
 
         var result = node.toStringWithSourceMap({
             file: currentRequest
 		})
 
 		this.callback(null, result.code, result.map.toJSON())
-
 		return
     }
 
     // prepend collected inject at the top of file
-	return source + '\n' + inject
-
-    // return the original source and sourceMap
-    if (sourceMap) {
-		this.callback(null, source, sourceMap)
-		return
-    }
-
-    // return the original source
 	return source
 }
