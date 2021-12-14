@@ -1,7 +1,7 @@
 
 {
   "name": "polymer-loader",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Webpack loader to automatically require any resources related to the required one",
   "keywords": [
     "webpack",
@@ -17,13 +17,14 @@
     "email": "jonathan.dumaine@dumstruck.com",
     "url": "https://github.com/jondum"
   },
+  "contributors": [
+    "Michael Rochelle <EliteScientist@gmail.com> (http://www.EliteScientist.net)"
+  ],
   "main": "index.js",
   "peerDependencies": {
 	"@polymer/polymer": "^3.3.1",
-    "webpack": "^4.41.5",
-    "loader-utils": "^0.2.4",
-    "source-map": "^0.1.39",
-    "baggage-loader": "^0.2.1"
+    "webpack": "^5.65.0",
+    "source-map": "^0.7.3",
   },
   "engines": {
     "node": ">=0.10.0"

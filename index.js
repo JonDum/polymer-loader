@@ -1,38 +1,37 @@
 'use strict'
 
-const path = require('path')
-const fs = require('fs')
-const loaderUtils = require('loader-utils')
+const path 		= require('path')
+const fs 		= require('fs')
 const SourceMap = require('source-map')
 
 module.exports = function (source, sourceMap)
 {
-	let query = loaderUtils.parseQuery(this.query)
+	let query = new URLSearchParams(this.query)
 
 	if (this.cacheable)
 		this.cacheable()
 
     // /foo/bar/file.js
-	let srcFilepath = this.resourcePath
+	const srcFilepath = this.resourcePath
 
     // /foo/bar/file.js -> file
-	let srcFilename = path.basename(srcFilepath, path.extname(srcFilepath))
+	const srcFilename = path.basename(srcFilepath, path.extname(srcFilepath))
 
     // /foo/bar/file.js -> /foo/bar
-	let srcDirpath = path.dirname(srcFilepath)
+	const srcDirpath = path.dirname(srcFilepath)
 
     // /foo/bar -> bar
-	let srcDirname = srcDirpath.split(path.sep).pop()
+	const srcDirname = srcDirpath.split(path.sep).pop()
 
-	let elementName = srcFilename == 'index' ? srcDirname : srcFilename
+	const elementName = srcFilename == 'index' ? srcDirname : srcFilename
 
-	let templateExtension = query.templateExt || query.templateExtension || 'html'
-	let styleExtension = query.styleExt || query.styleExtension || 'css'
+	const templateExtension = query.get("templateExt") || query.get("templateExtension") || 'html'
+	const styleExtension = query.get("styleExt") || query.get("styleExtension") || 'css'
 
-	let htmlExists = fs.existsSync(
+	const htmlExists = fs.existsSync(
 		path.join(srcDirpath, elementName + '.' + templateExtension)
 	)
-	let cssExists = fs.existsSync(
+	const cssExists = fs.existsSync(
 		path.join(srcDirpath, elementName + '.' + styleExtension)
 	)
 
@@ -44,35 +43,39 @@ module.exports = function (source, sourceMap)
 		buffer.push('\tlet componentTemplate	= "";')
 		
 		if (cssExists)
-			buffer.push(
-				"\tcomponentTemplate +='<style>' + require('./" +
-					elementName +
-					'.' +
-					styleExtension +
-					"') + '</style>\\n';"
-			)
+		{
+			buffer.push(`
+				let styleSheet	= require('./${elementName}.${styleExtension}');
+
+				if ("default" in styleSheet)
+					styleSheet = styleSheet.default;
+
+				componentTemplate += '<style>' + styleSheet + '</style>\\n';
+			`);
+		}
 
 		if (htmlExists)
-			buffer.push(
-				"\tcomponentTemplate += require('./" +
-					elementName +
-					'.' +
-					templateExtension +
-					"') + '\\n';"
-			)
+		{
+			buffer.push(`
+				let htmlStr	= require('./${elementName}.${templateExtension}');
+
+				if ("default" in htmlStr)
+					htmlStr = htmlStr.default;
+
+				componentTemplate += htmlStr + '\\n';
+			`);
+		}
 
 		buffer = buffer.concat([
 			'\ttry',
 			'\t{',
 			'\t\tlet html = require("@polymer/polymer").html;',
-			"\t\tlet Component 	= require('./" + elementName + "');",
+			`\t\tlet Component 	= require('./${elementName}');`,
 			'\t\tif ("default" in Component)',
 			'\t\t\tComponent = Component.default;',
 			'\t\tObject.defineProperty(Component, "_template", {value: html([componentTemplate]), writable: false, configurable: false});',
 			'\t\tObject.defineProperty(Component, "template", {get: function () { return this._template}, configurable: true, enumerable: false});',
-			'\t\tcustomElements.define(Component.is || "' +
-				elementName +
-				'", Component);',
+			`\t\tcustomElements.define(Component.is || "${elementName}", Component);`,
 			'\t}',
 			'\tcatch (error)',
 			'\t{',
@@ -81,7 +84,7 @@ module.exports = function (source, sourceMap)
 			'})();'
 		])
 
-		let inject = buffer.join('\n')
+		const inject = buffer.join('\n')
 
 		source += '\n' + inject
 	}
@@ -91,15 +94,15 @@ module.exports = function (source, sourceMap)
     // https://github.com/webpack/imports-loader/blob/master/index.js#L34-L44
     // https://webpack.github.io/docs/loaders.html#writing-a-loader
     if (sourceMap) {
-		var currentRequest = loaderUtils.getCurrentRequest(this)
-		var SourceNode = SourceMap.SourceNode
-		var SourceMapConsumer = SourceMap.SourceMapConsumer
-		var sourceMapConsumer = new SourceMapConsumer(sourceMap)
-		var node = SourceNode.fromStringWithSourceMap(source, sourceMapConsumer)
+		const currentRequest 	= this.currentRequest; //loaderUtils.getCurrentRequest(this)
+		const SourceNode 		= SourceMap.SourceNode
+		const SourceMapConsumer = SourceMap.SourceMapConsumer
+		const sourceMapConsumer = new SourceMapConsumer(sourceMap)
+		const node = SourceNode.fromStringWithSourceMap(source, sourceMapConsumer)
 
 		//node.prepend(inject)
 
-        var result = node.toStringWithSourceMap({
+        const result = node.toStringWithSourceMap({
             file: currentRequest
 		})
 
